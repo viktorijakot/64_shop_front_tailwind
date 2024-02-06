@@ -4,13 +4,17 @@ import * as Yup from "yup";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { baseBeUrl } from "../helper";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
       passwordConfirm: "",
+      firstname: "",
+      lastname: "",
     },
     validationSchema: Yup.object({
       email: Yup.string().email().min(3).required(),
@@ -18,6 +22,8 @@ export default function RegisterPage() {
       passwordConfirm: Yup.string()
         .oneOf([Yup.ref("password"), null], "Passwords must match")
         .required(),
+      firstname: Yup.string().min(5).max(126).required(),
+      lastname: Yup.string().min(5).max(126).required(),
     }),
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
@@ -25,6 +31,8 @@ export default function RegisterPage() {
       sendAxiosData({
         email: values.email,
         password: values.password,
+        firstname: values.firstname,
+        lastname: values.lastname,
       });
     },
   });
@@ -35,6 +43,7 @@ export default function RegisterPage() {
       .then((resp) => {
         console.log("resp", resp);
         toast.success("You have been registered");
+        navigate("/login");
       })
       .catch((error) => {
         console.warn(error);
@@ -46,7 +55,7 @@ export default function RegisterPage() {
 
   return (
     <div className="container mx-auto">
-      <h1 className="text-3xl ">RegisterPage</h1>
+      <h1 className="text-3xl ">Register Page</h1>
       <form onSubmit={formik.handleSubmit} className="mt-4" noValidate>
         <div className="mb-4">
           <SmartInput
@@ -54,6 +63,22 @@ export default function RegisterPage() {
             formik={formik}
             type="email"
             placeholder="Enter your email"
+          />
+        </div>
+        <div className="mb-4">
+          <SmartInput
+            id="firstname"
+            formik={formik}
+            type="text"
+            placeholder="Enter your name"
+          />
+        </div>
+        <div className="mb-4">
+          <SmartInput
+            id="lastname"
+            formik={formik}
+            type="text"
+            placeholder="Enter your surname"
           />
         </div>
         <div className="mb-4">

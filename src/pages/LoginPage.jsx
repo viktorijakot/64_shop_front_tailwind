@@ -35,8 +35,9 @@ export default function LoginPage() {
       .post(`${baseBeUrl}/auth/login`, data)
       .then((resp) => {
         console.log("resp", resp);
-        toast.success("Welcome");
+        // toast.success(`Welcome`);
         login(data.email, resp.data.token);
+        toast.success(resp.data?.msg || "Welcome");
         navigate("/shop", { replace: true });
       })
       .catch((error) => {
@@ -49,7 +50,7 @@ export default function LoginPage() {
 
   return (
     <div className="container mx-auto">
-      <h1 className="text-3xl">LoginPage</h1>
+      <h1 className="text-3xl">Login Page</h1>
       <p>
         Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nostrum
         voluptatibus, praesentium libero repellat officiis corporis esse iste
