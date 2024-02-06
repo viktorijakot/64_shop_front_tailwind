@@ -8,6 +8,7 @@ const AuthContext = createContext({
   login(email, token) {},
   logout() {},
   isUserLoggedIn: false,
+  usUserAdmin: false,
 });
 
 AuthContext.displayName = "MusuAutentifikacija";
@@ -50,13 +51,20 @@ function AuthCtxProvider({ children }) {
       userId: "",
     });
   }
-
+  let isUserAdmin = false;
   const isUserLoggedIn = !!authState.token;
+  if (isUserLoggedIn) {
+    const tokenData = jwtDecode(authState.token);
+    isUserAdmin = !!(
+      tokenData.hasOwnProperty("scope") && tokenData.scope === "admin"
+    );
+  }
 
   console.log(authState);
-
+  console.log("isUserAdmin ===", isUserAdmin);
   const ctxValue = {
     isUserLoggedIn,
+    isUserAdmin,
     token: authState.token,
     email: authState.email,
     userId: authState.userId,
