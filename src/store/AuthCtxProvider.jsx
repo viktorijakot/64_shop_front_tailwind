@@ -8,51 +8,59 @@ const AuthContext = createContext({
   login(email, token) {},
   logout() {},
   isUserLoggedIn: false,
-  usUserAdmin: false,
+  isUserAdmin: false,
 });
 
-AuthContext.displayName = "MusuAutentifikacija";
+function parseJWTTokenData(token) {
+  if (!token) return {};
 
-function AuthCtxProvider({ children }) {
+  const tokenData = jwtDecode(token);
+
+  const dataNow = Date.now() / 1000;
+  const expire = tokenData.exp + tokenData.iat;
+
+  if (dataNow > expire) {
+    localStorage.removeItem("token");
+    return {};
+  }
+
+  return { ...tokenData, token: token };
+}
+
+export default function AuthCtxProvider({ children }) {
   let tokenData = parseJWTTokenData(localStorage.getItem("token"));
+
   const [authState, setAuthState] = useState({
     token: tokenData?.token || "",
     email: tokenData?.email || "",
     userId: tokenData?.sub || "",
   });
-  function parseJWTTokenData(token) {
-    if (!token) return {};
-    const tokenData = jwtDecode(token);
-    const dataNow = Date.now() / 1000;
-    const expire = tokenData.exp + tokenData.iat;
-
-    if (dataNow > expire) {
-      localStorage.removeItem("token");
-      return {};
-    }
-    return { ...tokenData, token: token };
-  }
 
   function login(email, token) {
-    // console.log(email, token);
     const tokenData = jwtDecode(token);
+
     setAuthState({
-      token,
-      email,
+      token: token,
+      email: email,
       userId: tokenData.sub,
     });
+
     localStorage.setItem("token", token);
   }
 
   function logout() {
+    localStorage.removeItem("token");
+
     setAuthState({
       token: "",
       email: "",
       userId: "",
     });
   }
-  let isUserAdmin = false;
+
   const isUserLoggedIn = !!authState.token;
+
+  let isUserAdmin = false;
   if (isUserLoggedIn) {
     const tokenData = jwtDecode(authState.token);
     isUserAdmin = !!(
@@ -60,8 +68,6 @@ function AuthCtxProvider({ children }) {
     );
   }
 
-  console.log(authState);
-  console.log("isUserAdmin ===", isUserAdmin);
   const ctxValue = {
     isUserLoggedIn,
     isUserAdmin,
@@ -71,12 +77,11 @@ function AuthCtxProvider({ children }) {
     login,
     logout,
   };
+
   return (
     <AuthContext.Provider value={ctxValue}>{children}</AuthContext.Provider>
   );
 }
-
-export default AuthCtxProvider;
 
 export function useAuthContext() {
   return useContext(AuthContext);
