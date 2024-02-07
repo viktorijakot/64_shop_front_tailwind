@@ -3,13 +3,17 @@ import useApiData from "../../hooks/useApiData";
 import { baseBeUrl } from "../../helper";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuthContext } from "../../store/AuthCtxProvider";
 
 function CategoryListPage() {
   const [categories, setCategories] = useApiData(`${baseBeUrl}categories`);
+  const { token } = useAuthContext();
 
   function deleteCategory(categoryId) {
     axios
-      .delete(`${baseBeUrl}categories/${categoryId}`)
+      .delete(`${baseBeUrl}categories/${categoryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
         toast.success(
           response?.message ||
@@ -53,7 +57,7 @@ function CategoryListPage() {
                 <td className="border px-4 py-2">{category.name}</td>
                 <td className="border px-4 py-2">
                   <Link
-                    to={`/categories/${category.id}`}
+                    to={`/categories/edit/${category.id}`}
                     className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
                   >
                     Redaguoti

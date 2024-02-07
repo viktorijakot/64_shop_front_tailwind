@@ -6,15 +6,18 @@ import useApiData from "../../hooks/useApiData";
 import * as Yup from "yup";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuthContext } from "../../store/AuthCtxProvider";
 
 function CategoryEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { token } = useAuthContext();
   const [category, setCategory] = useApiData(`${baseBeUrl}categories/${id}`);
   console.log("category ===", category);
+
   const formik = useFormik({
     initialValues: {
-      name: "",
+      name: category?.name || "",
     },
     validationSchema: Yup.object({
       name: Yup.string().min(3).max(128).required(),
@@ -23,9 +26,12 @@ function CategoryEdit() {
       sendAxiosData(values);
     },
   });
+
   function sendAxiosData(data) {
     axios
-      .put(`${baseBeUrl}categories/${id}`, data)
+      .put(`${baseBeUrl}categories/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
         toast.success(
           response?.data.msg || "Category has been successfully updated!"

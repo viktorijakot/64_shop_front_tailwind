@@ -5,9 +5,11 @@ import { baseBeUrl } from "../../helper";
 import toast from "react-hot-toast";
 import axios from "axios";
 import SmartInput from "../../components/UI/SmartInput";
+import { useAuthContext } from "../../store/AuthCtxProvider";
 
 function CategoryCreate() {
   const navigate = useNavigate();
+  const { token } = useAuthContext();
 
   const formik = useFormik({
     initialValues: {
@@ -23,7 +25,9 @@ function CategoryCreate() {
 
   function sendAxiosData(data) {
     axios
-      .post(`${baseBeUrl}categories`, data)
+      .post(`${baseBeUrl}categories`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
         toast.success(
           response?.message || "Category has been successfully created!"

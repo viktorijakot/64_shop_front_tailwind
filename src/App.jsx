@@ -10,6 +10,8 @@ import AdminPrivateRoute from "./privateRoute/AdminPrivateRoute";
 import CategoryListPage from "./pages/category/categoryListPage";
 import CategoryCreate from "./pages/category/CategoryCreate";
 import CategoryEdit from "./pages/category/CategoryEdit";
+import ItemsListPage from "./pages/items/ItemsListPage";
+import ItemsCreatePage from "./pages/items/ItemsCreatePage";
 
 export default function App() {
   return (
@@ -40,10 +42,26 @@ export default function App() {
           }
         />
         <Route
-          path="/categories/:id"
+          path="/categories/edit/:id"
           element={
             <AdminPrivateRoute>
               <CategoryEdit />
+            </AdminPrivateRoute>
+          }
+        />
+        <Route
+          path="/items"
+          element={
+            <AdminPrivateRoute>
+              <ItemsListPage />
+            </AdminPrivateRoute>
+          }
+        />
+        <Route
+          path="/items/create"
+          element={
+            <AdminPrivateRoute>
+              <ItemsCreatePage />
             </AdminPrivateRoute>
           }
         />

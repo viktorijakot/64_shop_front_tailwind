@@ -4,6 +4,7 @@ function SmartInput({
   type = "text",
   readOnly = false,
   placeholder = "",
+  title,
 }) {
   // id = title
 
@@ -23,7 +24,7 @@ function SmartInput({
     <>
       <label className="w-full ">
         <span className="block">
-          {id.charAt(0).toUpperCase() + id.slice(1)}
+          {title ?? id.charAt(0).toUpperCase() + id.slice(1)}
         </span>
 
         {type === "textarea" ? (
