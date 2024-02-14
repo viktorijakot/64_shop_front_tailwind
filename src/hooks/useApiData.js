@@ -1,11 +1,14 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useAuthContext } from '../store/AuthCtxProvider';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
-export default function useApiData(apiUrl, initValue = []) {
+export default function useApiData(apiUrl, initValue = [], redirectUrl = '') {
   const [dataArr, setDataArr] = useState(initValue);
   const [apiErr, setApiErr] = useState({});
 const {token} = useAuthContext()
+const navigate = useNavigate();
 
   let configs = {};
     if (token !== '') {
@@ -25,6 +28,10 @@ const {token} = useAuthContext()
       .catch((error) => {
         console.log('useApiData errro ===', error);
         setApiErr(error);
+        if (redirectUrl) {
+          navigate(redirectUrl);
+      }
+      toast.error(error.response.data.error);
       });
   }, [apiUrl]);
 

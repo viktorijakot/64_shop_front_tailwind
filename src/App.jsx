@@ -13,6 +13,9 @@ import CategoryEdit from "./pages/category/CategoryEdit";
 import ItemsListPage from "./pages/items/ItemsListPage";
 import ItemsCreatePage from "./pages/items/ItemsCreatePage";
 import ItemEditPage from "./pages/items/ItemEditPage";
+import PrivateRoute from "./privateRoute/PrivateRoute";
+import OrderListPage from "./pages/order/OrderListPage";
+import OrderDetailPage from "./pages/order/OrderDetailPage";
 
 export default function App() {
   return (
@@ -25,6 +28,23 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
+        <Route
+          path="/orders"
+          element={
+            <PrivateRoute>
+              <OrderListPage />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/orders/:id"
+          element={
+            <PrivateRoute>
+              <OrderDetailPage />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/categories"
           element={
