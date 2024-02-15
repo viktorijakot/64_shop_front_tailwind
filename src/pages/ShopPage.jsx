@@ -1,7 +1,11 @@
+import { useState } from "react";
 import BuyItemButton from "../components/UI/BuyItemButton";
 import { baseBeUrl } from "../helper";
 import useApiData from "../hooks/useApiData";
 import { useAuthContext } from "../store/AuthCtxProvider";
+import axios from "axios";
+import toast from "react-hot-toast";
+import ProductStarRating from "../components/UI/ProductStarRating";
 
 const itemsUrl = "http://localhost:3000/api/items";
 
@@ -19,8 +23,32 @@ const itemsUrl = "http://localhost:3000/api/items";
 export default function ShopPage() {
   // const [itemsArr, setItemsArr] = useApiData(itemsUrl);
   const [itemsArr, setItemsArr] = useApiData(`${baseBeUrl}items`);
+  const [itemRatings, setItemRatings] = useState([]);
+  const { isUserLoggedIn, userId, token } = useAuthContext();
 
-  const { isUserLoggedIn, userId } = useAuthContext();
+  const handleRating = (id, rating) => {
+    axios
+      .post(
+        `${baseBeUrl}item-ratings`,
+        {
+          item_id: id,
+          customer_id: userId,
+          rating: rating,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
+      .then((response) => {
+        toast.success(
+          response?.data.msg || "Item rating was successfully added!"
+        );
+        //setItemsArr(itemsArr.map(item => item.id === id ? {...item, rating} : item))
+      })
+      .catch((error) => {
+        toast.error(error.response.data.error);
+      });
+  };
   console.log("itemsArr ===", itemsArr);
   return (
     <div className="container bg-slate-300">
@@ -38,11 +66,40 @@ export default function ShopPage() {
             <h2>title: {item.title}</h2>
             <p>description: {item.description}</p>
             <p>price: {item.price}</p>
-            <p>rating: {item.rating}</p>
-            <p>stock: {item.stock}</p>
-            <p>cat_id: {item.cat_id}</p>
+            <p>
+              <span className="font-bold">Įvertinimas:</span>{" "}
+              {Math.round(item.average_rating * 100) / 100} ({item.rating_count}
+              )
+            </p>
+
             {isUserLoggedIn && (
-              <BuyItemButton itemId={item.id} customerId={userId} />
+              <div>
+                <ProductStarRating
+                  rating={item.average_rating}
+                  onRating={(rating) => {
+                    handleRating(item.id, rating);
+                    console.log("rating ===", rating);
+                  }}
+                />
+              </div>
+            )}
+            <p>
+              <span className="font-bold">Likutis:</span> {item.stock}
+            </p>
+            <p>
+              <span className="font-bold">Kategorija:</span>{" "}
+              {item.category_name}
+            </p>
+            {isUserLoggedIn && item.stock > 0 ? (
+              <BuyItemButton
+                itemId={item.id}
+                customerId={userId}
+                itemStock={item.stock}
+              />
+            ) : (
+              <p className="mt-4 text-center">
+                <span className="font-bold">OUT OF STOCK</span>
+              </p>
             )}
           </div>
         ))}

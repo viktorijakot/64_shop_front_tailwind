@@ -5,14 +5,20 @@ import { baseBeUrl } from "../../helper";
 import toast from "react-hot-toast";
 import { useState } from "react";
 
-export default function BuyItemButton({ itemId, customerId }) {
+export default function BuyItemButton({ itemId, customerId, itemStock }) {
   const navigate = useNavigate();
   const { token } = useAuthContext();
 
   const [quantity, setQuantity] = useState(1);
 
+  const [max, setMax] = useState(itemStock);
+
   // get user from Context api
   const buyItem = async () => {
+    if (quantity > max) {
+      toast.error("Item stock is too low!");
+      return;
+    }
     sendAxiosData({
       item_id: itemId,
       customer_id: customerId,
@@ -26,8 +32,8 @@ export default function BuyItemButton({ itemId, customerId }) {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        toast.success(response?.message || "Order was created successfully!");
-        navigate("/", { replace: true });
+        toast.success(response?.msg || "Order was created successfully!");
+        navigate("/orders", { replace: true });
       })
       .catch((error) => {
         toast.error(error.response.data.error);
